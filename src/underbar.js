@@ -252,11 +252,25 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    _.each(arguments, function(argObj) {
+      _.each(argObj, function(value, key) {
+        obj[key] = value;
+      });
+    });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(arguments, function(argObj) {
+      _.each(argObj, function(value, key) {
+        if (obj[key] === undefined) {
+          obj[key] = value;
+        }
+      });
+    });
+    return obj;
   };
 
 
@@ -300,6 +314,17 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    
+    var computedResults = {};
+
+    return function() {
+      var args = JSON.stringify(arguments);
+
+      if (!computedResults[args]) {
+        computedResults[args] = func.apply(this, arguments);
+      }
+      return computedResults[args];
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -309,6 +334,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = Array.prototype.slice.call(arguments, 2);
+
+    setTimeout(function() {
+      return func.apply(this, args);
+    }, wait);
   };
 
 
@@ -323,6 +353,21 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    // Math.random(array(i));
+    // array.slice();
+    var newArr = array.slice();
+
+    var x;
+    var randomIndex;
+    var currentIndex;
+
+    for (currentIndex = newArr.length - 1; currentIndex; currentIndex--) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      x = newArr[currentIndex];
+      newArr[currentIndex] = newArr[randomIndex];
+      newArr[randomIndex] = x;
+    }
+    return newArr;
   };
 
 
